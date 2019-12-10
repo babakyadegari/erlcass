@@ -91,5 +91,7 @@ popd
 mkdir -p $DEPS_LOCATION/cpp-driver/build
 pushd $DEPS_LOCATION/cpp-driver/build
 cmake .. -DCASS_BUILD_STATIC=ON -DCMAKE_BUILD_TYPE=RELEASE
+sed -i "s/-Werror//" CMakeFiles/cassandra.dir/flags.make
+sed -i "s/-Werror//" CMakeFiles/cassandra_static.dir/flags.make
 make -j 12
 popd
