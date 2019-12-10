@@ -43,13 +43,13 @@ const char kHexaToByteTable[256] =
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
 };
 
-//more performant methods for converting CassUuid into string representation.
+// more performant methods for converting CassUuid into string representation.
 
 void cass_uuid_string(CassUuid uuid, char* output)
 {
     size_t pos = 0;
     char encoded[16];
-    cass::encode_uuid(encoded, uuid);
+    datastax::internal::encode_uuid(encoded, uuid);
 
     for (size_t i = 0; i < 16; ++i)
     {
@@ -85,9 +85,9 @@ CassError cass_uuid_from_string_n(const char* str, size_t str_length, CassUuid* 
         pos += 2;
     }
 
-    cass::decode_uuid(buf, output);
+    datastax::internal::decode_uuid(buf, output);
 
     return CASS_OK;
 }
 
-}
+}  // namespace erlcass

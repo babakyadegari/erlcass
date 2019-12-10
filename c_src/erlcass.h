@@ -1,5 +1,5 @@
-#ifndef ERLCASS_C_SRC_ERLCASS_H
-#define ERLCASS_C_SRC_ERLCASS_H
+#ifndef C_SRC_ERLCASS_H_
+#define C_SRC_ERLCASS_H_
 
 #include "erl_nif.h"
 #include "cassandra.h"
@@ -17,7 +17,7 @@ struct atoms
     ERL_NIF_TERM atomSerialConsistencyLevel;
     ERL_NIF_TERM atomLogMsgRecord;
 
-    //events atoms
+    // events atoms
 
     ERL_NIF_TERM atomSessionConnected;
     ERL_NIF_TERM atomSessionClosed;
@@ -25,7 +25,7 @@ struct atoms
     ERL_NIF_TERM atomExecuteStatementResult;
     ERL_NIF_TERM atomLogMessageReceived;
 
-    //data types
+    // data types
 
     ERL_NIF_TERM atomAscii;
     ERL_NIF_TERM atomBigInt;
@@ -54,7 +54,7 @@ struct atoms
     ERL_NIF_TERM atomVarchar;
     ERL_NIF_TERM atomVarint;
 
-    //column types
+    // column types
 
     ERL_NIF_TERM atomColumnTypeRegular;
     ERL_NIF_TERM atomColumnTypePartitionKey;
@@ -62,14 +62,14 @@ struct atoms
     ERL_NIF_TERM atomColumnTypeStatic;
     ERL_NIF_TERM atomColumnTypeCompactValue;
 
-    //metadata
+    // metadata
 
     ERL_NIF_TERM atomMetadataSchemaVersion;
     ERL_NIF_TERM atomColumnMetaColumnName;
     ERL_NIF_TERM atomColumnMetaDataType;
     ERL_NIF_TERM atomColumnMetaType;
 
-    //cluster setings atoms
+    // cluster setings atoms
 
     ERL_NIF_TERM atomClusterDefaultConsistencyLevel;
     ERL_NIF_TERM atomClusterSettingContactPoints;
@@ -77,14 +77,17 @@ struct atoms
     ERL_NIF_TERM atomClusterSettingProtocolVersion;
     ERL_NIF_TERM atomClusterSettingNumThreadsIo;
     ERL_NIF_TERM atomClusterSettingQueueSizeIo;
-    ERL_NIF_TERM atomClusterSettingQueueSizeEvent;
     ERL_NIF_TERM atomClusterSettingCoreConnectionsPerHost;
-    ERL_NIF_TERM atomClusterSettingMaxConnectionsPerHost;
-    ERL_NIF_TERM atomClusterSettingReconnectWaitTime;
-    ERL_NIF_TERM atomClusterSettingMaxConcurrentCreation;
-    ERL_NIF_TERM atomClusterSettingMaxConcurrentRequestsThreshold;
-    ERL_NIF_TERM atomClusterSettingMaxRequestsPerFlush;
     ERL_NIF_TERM atomClusterSettingConnectTimeout;
+    ERL_NIF_TERM atomClusterSettingConstantReconnect;
+    ERL_NIF_TERM atomClusterSettingExponentialReconnect;
+    ERL_NIF_TERM atomClusterSettingCoalesceDelay;
+    ERL_NIF_TERM atomClusterSettingRequestRatio;
+    ERL_NIF_TERM atomClusterSettingMaxSchemaWaitTime;
+    ERL_NIF_TERM atomClusterSettingTokenAwareRoutingShuffleReplicas;
+    ERL_NIF_TERM atomClusterSettingUseHostnameResolution;
+    ERL_NIF_TERM atomClusterSettingSpeculativeExecutionPolicy;
+    ERL_NIF_TERM atomClusterSettingMaxReusableWriteObjects;
     ERL_NIF_TERM atomClusterSettingRequestTimeout;
     ERL_NIF_TERM atomClusterSettingCredentials;
     ERL_NIF_TERM atomClusterSettingLoadBalanceRoundRobin;
@@ -102,7 +105,6 @@ struct atoms
     ERL_NIF_TERM atomClusterSettingSslPrivateKey;
     ERL_NIF_TERM atomClusterSettingRetryPolicy;
     ERL_NIF_TERM atomClusterSettingRetryPolicyDefault;
-    ERL_NIF_TERM atomClusterSettingRetryPolicyDowngradingConsistency;
     ERL_NIF_TERM atomClusterSettingRetryPolicyFallthrough;
 };
 
@@ -120,4 +122,4 @@ struct cassandra_data
 
 extern atoms ATOMS;
 
-#endif
+#endif  // C_SRC_ERLCASS_H_

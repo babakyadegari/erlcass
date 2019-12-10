@@ -1,5 +1,5 @@
-#ifndef ERLCASS_C_SRC_FUN_BINDINGS_H
-#define ERLCASS_C_SRC_FUN_BINDINGS_H
+#ifndef C_SRC_FUN_BINDINGS_H_
+#define C_SRC_FUN_BINDINGS_H_
 
 #include "cassandra.h"
 
@@ -13,11 +13,11 @@ CassError erlcass_cass_collection_append_bytes(CassCollection* collection, size_
 CassError erlcass_cass_collection_append_bool(CassCollection* collection, size_t index, cass_bool_t value);
 CassError erlcass_cass_collection_append_float(CassCollection* collection, size_t index, cass_float_t value);
 CassError erlcass_cass_collection_append_double(CassCollection* collection, size_t index, cass_double_t value);
-CassError erlcass_cass_collection_append_inet(CassCollection* collection, size_t index, CassInet value);
+CassError erlcass_cass_collection_append_inet(CassCollection* collection, size_t index, const CassInet& value);
 CassError erlcass_cass_collection_append_uuid(CassCollection* collection, size_t index, CassUuid value);
 CassError erlcass_cass_collection_append_decimal(CassCollection* collection, size_t index, const cass_byte_t* varint, size_t varint_size, cass_int32_t scale);
 CassError erlcass_cass_collection_append_collection(CassCollection* collection, size_t index, const CassCollection* value);
 CassError erlcass_cass_collection_append_tuple(CassCollection* collection, size_t index, const CassTuple* value);
 CassError erlcass_cass_collection_append_user_type(CassCollection* collection, size_t index, const CassUserType* value);
 
-#endif
+#endif  // C_SRC_FUN_BINDINGS_H_

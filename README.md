@@ -1,7 +1,22 @@
 # ErlCass
+
 [![Build Status](https://travis-ci.org/silviucpp/erlcass.svg?branch=master)](https://travis-ci.org/silviucpp/erlcass)
+[![GitHub](https://img.shields.io/github/license/silviucpp/erlcass)](https://github.com/silviucpp/erlcass/blob/master/LICENSE)
+[![Hex.pm](https://img.shields.io/hexpm/v/erlcass)](https://hex.pm/packages/erlcass)
+[![Maintenance](https://img.shields.io/maintenance/yes/2019)]()
 
 *An Erlang Cassandra driver, based on [DataStax cpp driver][1] focused on performance.*
+
+### Note for v4.0.0
+
+- Starting with `erlcass` version v4.x the native driver is based on Datastax cpp-driver > 2.10.0 which is a massive 
+release that includes many new features as well as architectural and performance improvements. 
+
+- Some cluster configs were removed and some other were added. For more info please see the [Changelog][5].
+- This new version adds support for speculative execution: For certain applications it is of the utmost importance to 
+minimize latency. Speculative execution is a way to minimize latency by preemptively executing several instances of 
+the same query against different nodes. The fastest response is then returned to the client application and the other 
+requests are cancelled. Speculative execution is disabled by default. (see `speculative_execution_policy`)
 
 ### Update from 2.x to 3.0
 
@@ -21,6 +36,34 @@ functions will return immediately. The DataStax driver use it's own thread pool 
 Also the responses are received on this threads and sent back to Erlang calling processes using `enif_send` in
 an async manner.
 
+#### Features
+
+List of supported features:
+
+- Asynchronous API
+- Synchronous API
+- Simple, Prepared, and Batch statements
+- Asynchronous I/O, parallel execution, and request pipelining
+- Connection pooling
+- Automatic node discovery
+- Automatic reconnection
+- Configurable load balancing
+- Works with any cluster size
+- Authentication
+- SSL
+- Latency-aware routing
+- Performance metrics
+- Tuples and UDTs
+- Nested collections
+- Retry policies
+- Support for materialized view and secondary index metadata
+- Support for clustering key order, `frozen<>` and Cassandra version metadata
+- Reverse DNS with SSL peer identity verification support
+- Randomized contact points
+- Speculative execution
+
+Missing features from Datastax driver can be found into the [Todo List][9].
+
 #### Benchmark comparing with other drivers
 
 The benchmark (`benchmarks/benchmark.erl`) is spawning N processes that will send a total of X request using the async
@@ -29,17 +72,22 @@ used in tests. During test in case of unexpected results from driver will log er
 
 To run the benchmark yourself you should do:
 
-- in `rebar.config` remove comment for `cqerl` and `marina` deps
-- copy `benchmarks/benchmark.erl` and `load_test.erl` in `src`
-- recompile using `rebar3`
 - change the cluster ip in `benchmark.config` for all drivers
-- create the testing keyspace and tables using `load_test:prepare_load_test_table().`
+- run `make setup_benchmark` (this will compile the app using the bench profile and create the necessary schema)
 - use `make benchmark` as described above
 
-The following test was run on a MacBook Pro with Mac OS Sierra 10.12.6 and the cassandra cluster was running on other 3
-physical machines in the same LAN. The schema was created using `load_test:prepare_load_test_table` from `benchmarks/load_test.erl`.
+The following test was run on a Ubuntu 16.04 LTS (Intel(R) Core(TM) i5-2500 CPU @ 3.30GHz 4 cores) and the cassandra cluster was running on other 3
+physical machines in the same LAN. The schema is created using `prepare_load_test_table` from `benchmarks/load_test.erl`.
 Basically the schema contains all possible data types and the query is based on a primary key (will return the same
 row all the time which is fine because we test the driver performances and not the server one)
+
+To create schema:
+
+```erlang
+make setup_benchmark
+```
+
+To run the benchmark:
 
 ```erlang
 make benchmark MODULE=erlcass PROCS=100 REQ=100000
@@ -47,24 +95,17 @@ make benchmark MODULE=erlcass PROCS=100 REQ=100000
 
 Where:
 
-- `MODULE`: the driver used to benchmark. Can be one of : `erlcass`, `cqerl` or `marina`
+- `MODULE`: the driver used to benchmark. Can be one of : `erlcass` or `marina`
 - `PROCS`: the number or erlang processes used to send the requests (concurrency level). Default 100.
 - `REQ`: the number of requests to be sent. Default 100000.
 
-The results for 100 concurrent processes that sends 100k queries. Measured the average time for 3 runs:
+The results for 100 concurrent processes that sends 100k queries. Picked the average time from 3 runs:
 
 | cassandra driver     | Time (ms) | Req/sec  |
 |:--------------------:| ---------:|---------:|
-| [erlcass][8] v3.0    | 1466      | 68212    |
-| [cqerl][6] v1.0.8    | 11016     | 9077     |
-| [marina][7] 0.2.17   | 1779      | 56221    |
+| [erlcass][8] v4.0.0    | 947     | 105544   |
+| [marina][7] 0.3.5    | 2360      | 42369    |
 
-Notes:
-
-- `marina` performs very nice unfortunately you need to tune properly the `backlog_size` and `pool_size` based on the
-concurrency level you are using. From my test performance degrades a lot if pool size is increased (for example for 100 connections time to complete was 3044 ms instead 1779 ms for 30 connections)
-Also in case te pool is too small you start getting all kind of errors (like no socket available) or in case the backlog is not big enough you get errors as well.
-- `erlcass` seems to have the smallest variation between tests. Results are always in the same range +/- 100 ms. On the other drivers might happened time to time to have bigger variations.
 
 #### Changelog
 
@@ -118,26 +159,30 @@ The cluster options can be set inside your `app.config` file under the `cluster_
     {log_level, 3},
     {keyspace, <<"keyspace">>},
     {cluster_options,[
-        {contact_points, <<"172.17.3.129,172.17.3.130,172.17.3.131">>},
-        {port, 9042},
-        {load_balance_dc_aware, {<<"dc-name">>, 0, false}},
+        {contact_points, <<"172.17.3.129,172.17.3.130,172.17.3.131">>},       
         {latency_aware_routing, true},
         {token_aware_routing, true},
         {number_threads_io, 4},
         {queue_size_io, 128000},
-        {max_connections_host, 5},
+        {core_connections_host, 1},
         {tcp_nodelay, true},
-        {tcp_keepalive, {true, 1800}},
+        {tcp_keepalive, {true, 60}},
+        {connect_timeout, 5000},
+        {request_timeout, 5000},
+        {retry_policy, {default, true}},
         {default_consistency_level, 6}
     ]}
 ]},
 ```
 
-*Tips for production environment:*
+### Tips for production environment:
 
 - Use `token_aware_routing` and `latency_aware_routing`
 - Don't use `number_threads_io` bigger than the number of your cores.
 - Use `tcp_nodelay` and also enable `tcp_keepalive`
+- Don't use large values for `core_connections_host`. The driver is system call bound and performs better with less I/O threads 
+and connections because it can batch a larger number of writes into a single system call (the driver will naturally attempt to coallesce these operations). 
+You may want to reduce the number of I/O threads to 2 or 3 and reduce the core connections to 1 (default).
 
 All available options are described in the following [wiki section][4].
 
@@ -370,3 +415,4 @@ For mode details about bind by index and name please see: 'Run a prepared statem
 [6]:https://github.com/matehat/cqerl
 [7]:https://github.com/lpgauth/marina
 [8]:https://github.com/silviucpp/erlcass
+[9]:https://github.com/silviucpp/erlcass/wiki/Todo-list
